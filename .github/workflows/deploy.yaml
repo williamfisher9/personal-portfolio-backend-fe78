@@ -1,0 +1,38 @@
+name: python-flask app deployment
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  deploy:
+    name: deployment on EC2 instance
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build and Deploy 
+        env: 
+          PRIVATE_KEY: ${{ secrets.SSH_KEY }}
+          IP_ADDRESS: ${{ secrets.EC2_IP_ADDRESS }}
+          USER_NAME: ${{ secrets.EC2_USERNAME }}
+        run: | 
+          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${IP_ADDRESS} '
+
+              # Now we have got the access of EC2 and we will start the deploy .
+              cd /home/ubuntu/ && 
+              rm -rf personal-portfolio-backend-fe78 &&
+              mkdir -r app_files/images
+              git clone https://github.com/williamfisher9/personal-portfolio-backend-fe78
+              cd personal-portfolio-backend-fe78
+              git checkout master &&
+              git reset --hard origin/master &&
+              git pull origin master &&
+              python3 -m venv venv
+              source venv/bin/activate
+              pip install -r requirements.txt
+              python3 -m src
+              '
