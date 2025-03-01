@@ -6,23 +6,42 @@ on:
 
 jobs:
   deploy:
+    runs-on: ubuntu-latest
     name: deployment on EC2 instance
 
-    runs-on: ubuntu-latest
+    
 
     steps:
+      - name: checkout current branch
       - uses: actions/checkout@v2
 
-      - name: Build and Deploy 
-        env: 
-          PRIVATE_KEY: ${{ secrets.SSH_KEY }}
-          IP_ADDRESS: ${{ secrets.EC2_IP_ADDRESS }}
-          USER_NAME: ${{ secrets.EC2_USERNAME }}
-        run: | 
-          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${IP_ADDRESS} '
+      - name: Set up SSH key and whitelist EC2 IP address 🐻‍❄️
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan ${{ secrets.EC2_IP_ADDRESS }} >> ~/.ssh/known_hosts
 
-              # Now we have got the access of EC2 and we will start the deploy .
+      - name: Create .env file dynamically 🧨
+        env:
+          EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
+        run: |
+          echo "ENV=${ENV}" >> env
+          echo "EC2_USERNAME=${EC2_USERNAME}" >> env
+
+      - name: Copy files to remote server 🚙
+        env:
+          EC2_HOST: ${{ secrets.EC2_IP_ADDRESS }}
+          EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
+        run: |
+          scp -r * $EC2_USERNAME@$EC2_IP_ADDRESS:/home/ubuntu/
+
+      - name: Run Bash Script To Delpoy App 🚀
+        env:
+          EC2_IP_ADDRESS: ${{ secrets.EC2_IP_ADDRESS }}
+          EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
+        run: |
+          ssh -o StrictHostKeyChecking=no $EC2_USERNAME@$EC2_IP_ADDRESS '
               cd /home/ubuntu/ && 
               rm -rf personal-portfolio-backend-fe78 &&
               mkdir -r app_files/images
