@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: checkout current branch
-      - uses: actions/checkout@v2
+        uses: actions/checkout@v2
 
       - name: Set up SSH key and whitelist EC2 IP address 🐻‍❄️
         run: |
