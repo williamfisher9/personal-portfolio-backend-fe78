@@ -32,4 +32,4 @@ if __name__ == '__main__':
     with app.app_context():
         initialize_database()
 
-    app.run(debug=False, port=9999)
+    app.run(debug=True, port=9999)
