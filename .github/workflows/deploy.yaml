@@ -27,7 +27,7 @@ jobs:
           cd /home/ubuntu/ && 
           rm -rf personal-portfolio-backend-fe78 &&
           mkdir -r app_files/images
-          git clone https://github.com/williamfisher9/personal-portfolio-backend-fe78 /home/ubuntu/personal-portfolio-backend-fe78
+          git@github.com:williamfisher9/personal-portfolio-backend-fe78.git /home/ubuntu/personal-portfolio-backend-fe78
           cd /home/ubuntu/personal-portfolio-backend-fe78
           git pull origin master &&
           python3 -m venv venv
