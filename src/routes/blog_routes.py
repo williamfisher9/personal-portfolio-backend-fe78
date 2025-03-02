@@ -1,12 +1,13 @@
-from flask import Blueprint, request, url_for, send_from_directory
+from flask import Blueprint, request, send_from_directory
 from flask_jwt_extended import jwt_required
-from werkzeug.utils import secure_filename, send_file
+from werkzeug.utils import secure_filename
 
 from src.messages.response_message import ResponseMessage
 from src.model.blog import Blog
 from src.extensions.extensions import db
 import os
 import json
+import logging
 
 from src.model.stored_images import StoredImages
 
@@ -33,6 +34,7 @@ def get_img_url(filename):
 
 @blog_blueprint.route("/posts", methods=['GET'])
 def get_all_posts():
+    logging.info(request.remote_addr)
     blogs = Blog.query.all()
 
     for blog in blogs:
