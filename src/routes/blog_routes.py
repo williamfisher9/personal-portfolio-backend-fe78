@@ -15,7 +15,7 @@ blog_blueprint = Blueprint("blog_blueprint", __name__, url_prefix="/api/v1/blog"
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
-logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 def get_param_value_by_name(val):
     with open('src//extensions//configs.json', 'r') as props_file:
@@ -36,7 +36,7 @@ def get_img_url(filename):
 
 @blog_blueprint.route("/posts", methods=['GET'])
 def get_all_posts():
-    logging.info(request.remote_addr)
+    logger.info(request.remote_addr)
     blogs = Blog.query.all()
 
     for blog in blogs:

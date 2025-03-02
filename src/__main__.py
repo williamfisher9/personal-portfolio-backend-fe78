@@ -17,8 +17,8 @@ import logging
 if __name__ == '__main__':
     initialize_app()
 
-    logging.getLogger(__name__)
-    logging.info("initializing app instance")
+    logger = logging.getLogger(__name__)
+    logger.info("initializing app instance")
 
     app = Flask(__name__)
     app.config.from_file("extensions//configs.json", load=json.load)
