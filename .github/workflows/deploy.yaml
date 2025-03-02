@@ -26,7 +26,7 @@ jobs:
           ls -la ~
           cd /home/ubuntu && rm -rf personal-portfolio-backend-fe78 && 
           mkdir personal-portfolio-backend-fe78 &&
-          mkdir -r app_files/images
+          mkdir -p app_files/images
           '
 
       - name: Clone repo to EC2 using rsync
@@ -49,8 +49,7 @@ jobs:
           echo "Current directory: $(pwd)"
           echo "Listing home directory:"
           ls -la ~
-          cd /home/ubuntu/personal-portfolio-backend-fe78 &&
-          mkdir -r app_files/images
+          cd /home/ubuntu/personal-portfolio-backend-fe78
           python3 -m venv venv
           source venv/bin/activate
           pip install -r requirements.txt
