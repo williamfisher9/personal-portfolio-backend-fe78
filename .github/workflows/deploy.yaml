@@ -10,13 +10,30 @@ jobs:
     name: deployment on EC2 instance
 
     steps:
-      - name: Checkout the files
+      - name: Checkout the files to github runner
         uses: actions/checkout@v2
 
-      - name: Deploy to Server 1
-        uses: easingthemes/ssh-deploy@main 
+      - name: Copy files ane deploy them
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
           REMOTE_HOST: ${{ secrets.EC2_IP_ADDRESS }}
           REMOTE_USER: ${{ secrets.EC2_USERNAME }}
-          TARGET: /home/ubuntu
+        run: | 
+          echo "$SSH_PRIVATE_KEY" > private_key_ec2.pem && chmod 600 private_key_ec2.pem
+          ssh -o StrictHostKeyChecking=no -i private_key_ec2.pem ${REMOTE_USER}@${REMOTE_HOST} '
+          echo "Current directory: $(pwd)"
+          echo "Listing home directory:"
+          ls -la ~
+          cd /home/ubuntu/ && 
+          rm -rf personal-portfolio-backend-fe78 &&
+          mkdir -r app_files/images
+          git clone https://github.com/williamfisher9/personal-portfolio-backend-fe78
+          cd personal-portfolio-backend-fe78
+          git checkout master &&
+          git reset --hard origin/master &&
+          git pull origin master &&
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+          python3 -m src
+          '
