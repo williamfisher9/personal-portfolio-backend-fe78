@@ -16,6 +16,8 @@ if __name__ == '__main__':
 
     app = Flask(__name__)
     app.config.from_file("extensions//configs.json", load=json.load)
+    print(os.environ.get('MAIL_USERNAME'))
+    print(os.environ.get('MAIL_PASSWORD'))
     app.config['MAIL_USERNAME']=os.environ.get('MAIL_USERNAME')
     app.config['MAIL_PASSWORD']=os.environ.get('MAIL_PASSWORD')
 
