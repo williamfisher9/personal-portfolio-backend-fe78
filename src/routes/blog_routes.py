@@ -15,6 +15,8 @@ blog_blueprint = Blueprint("blog_blueprint", __name__, url_prefix="/api/v1/blog"
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
+logging.getLogger(__name__)
+
 def get_param_value_by_name(val):
     with open('src//extensions//configs.json', 'r') as props_file:
         return json.load(props_file)[val]

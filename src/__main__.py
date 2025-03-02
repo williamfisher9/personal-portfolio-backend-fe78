@@ -14,10 +14,10 @@ from src.routes.blog_routes import blog_blueprint
 from src.routes.mail_routes import mail_blueprint
 
 import logging
-
 if __name__ == '__main__':
     initialize_app()
 
+    logging.getLogger(__name__)
     logging.info("initializing app instance")
 
     app = Flask(__name__)
