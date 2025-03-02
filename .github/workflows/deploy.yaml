@@ -26,7 +26,7 @@ jobs:
           ls -la ~
           cd /home/ubuntu/ && 
           rm -rf personal-portfolio-backend-fe78 &&
-          mkdir -r app_files/images
+          mkdir -p app_files/images
           git clone https://github.com/williamfisher9/personal-portfolio-backend-fe78
           cd personal-portfolio-backend-fe78
           git checkout master &&
