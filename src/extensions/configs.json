@@ -10,7 +10,7 @@
   "MAIL_USE_TLS": false,
   "MAIL_USE_SSL": true,
   "WEB_SERVER_NAME": "http://ec2-3-147-126-128.us-east-2.compute.amazonaws.com",
-  "SQLALCHEMY_DATABASE_URI": "sqlite:///C://Users//william.fisher//Desktop//app_files//app.db",
-  "UPLOAD_FOLDER": "C://Users//william.fisher//Desktop//app_files//images",
-  "LOGS_DIRECTORY": "C://Users//william.fisher//Desktop//app_files"
+  "SQLALCHEMY_DATABASE_URI": "sqlite:////home/ubuntu/app_files/app.db",
+  "UPLOAD_FOLDER": "/home/ubuntu/app_files/images",
+  "LOGS_DIRECTORY": "/home/ubuntu/app_files"
 }
