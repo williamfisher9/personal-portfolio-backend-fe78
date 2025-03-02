@@ -50,6 +50,7 @@ jobs:
           echo "Listing home directory:"
           ls -la ~
           source ~/.bashrc
+          pkill python3
           cd /home/ubuntu/personal-portfolio-backend-fe78
           python3 -m venv venv
           source venv/bin/activate
