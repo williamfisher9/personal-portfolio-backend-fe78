@@ -2,40 +2,37 @@ name: python-flask app deployment
 
 on:
   push:
-    branches: [ "master" ]
-
-env: 
-  PRIVATE_KEY: ${{ secrets.SSH_KEY }}
-  IP_ADDRESS: ${{ secrets.EC2_IP_ADDRESS }}
-  USER_NAME: ${{ secrets.EC2_USERNAME }}
+    branches: [ master ]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     name: deployment on EC2 instance
-    
+
     steps:
-      - name: checkout branch
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v2
 
-      - name: Build and Deploy
-
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ env.EC2_IP_ADDRESS }}
-          username: ${{ env.EC2_USERNAME }}
-          key: ${{ env.PRIVATE_KEY }}
-          envs: PRIVATE_KEY
-          script: |-
-            cd /home/ubuntu/ && 
-            rm -rf personal-portfolio-backend-fe78 &&
-            mkdir -r app_files/images
-            git clone https://github.com/williamfisher9/personal-portfolio-backend-fe78
-            cd personal-portfolio-backend-fe78
-            git checkout master &&
-            git reset --hard origin/master &&
-            git pull origin master &&
-            python3 -m venv venv
-            source venv/bin/activate
-            pip install -r requirements.txt
-            python3 -m src
+      - name: Build and Deploy 
+        env: 
+          PRIVATE_KEY: ${{ secrets.SSH_KEY }}
+          IP_ADDRESS: ${{ secrets.EC2_IP_ADDRESS }}
+          USER_NAME: ${{ secrets.EC2_USERNAME }}
+        run: | 
+          echo "$PRIVATE_KEY" > private_key_ec2.pem && chmod 600 private_key_ec2.pem
+          ssh -o StrictHostKeyChecking=no -i private_key_ec2.pem ${USER_NAME}@${IP_ADDRESS} '
+          echo "Current directory: $(pwd)"
+          echo "Listing home directory:"
+          ls -la ~
+          cd /home/ubuntu/ && 
+          rm -rf personal-portfolio-backend-fe78 &&
+          mkdir -r app_files/images
+          git clone https://github.com/williamfisher9/personal-portfolio-backend-fe78
+          cd personal-portfolio-backend-fe78
+          git checkout master &&
+          git reset --hard origin/master &&
+          git pull origin master &&
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+          python3 -m src
+          '
