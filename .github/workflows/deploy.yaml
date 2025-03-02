@@ -54,6 +54,5 @@ jobs:
           python3 -m venv venv
           source venv/bin/activate
           pip install -r requirements.txt
-          python3 -m src
-          nohup python3 -m src &
+          sudo nohup python3 -m src > log.txt 2>&1 &
           '
