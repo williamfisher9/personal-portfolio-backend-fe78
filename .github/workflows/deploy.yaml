@@ -19,18 +19,16 @@ jobs:
           REMOTE_HOST: ${{ secrets.EC2_IP_ADDRESS }}
           REMOTE_USER: ${{ secrets.EC2_USERNAME }}
         run: | 
-          echo "$SSH_PRIVATE_KEY" > private_key_ec2.pem && chmod 600 private_key_ec2.pem
-          ssh -o StrictHostKeyChecking=no -i private_key_ec2.pem ${REMOTE_USER}@${REMOTE_HOST} '
+          echo "$PRIVATE_KEY" > private_key_ec2.pem && chmod 600 private_key_ec2.pem
+          ssh -o StrictHostKeyChecking=no -i private_key_ec2.pem ${USER_NAME}@${IP_ADDRESS} '
           echo "Current directory: $(pwd)"
           echo "Listing home directory:"
           ls -la ~
           cd /home/ubuntu/ && 
           rm -rf personal-portfolio-backend-fe78 &&
-          mkdir -p app_files/images
-          git clone https://github.com/williamfisher9/personal-portfolio-backend-fe78
-          cd personal-portfolio-backend-fe78
-          git checkout master &&
-          git reset --hard origin/master &&
+          mkdir -r app_files/images
+          git clone https://github.com/williamfisher9/personal-portfolio-backend-fe78 /home/ubuntu/personal-portfolio-backend-fe78
+          cd /home/ubuntu/personal-portfolio-backend-fe78
           git pull origin master &&
           python3 -m venv venv
           source venv/bin/activate
