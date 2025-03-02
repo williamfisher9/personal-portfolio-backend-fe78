@@ -49,10 +49,10 @@ jobs:
           echo "Current directory: $(pwd)"
           echo "Listing home directory:"
           ls -la ~
+          source ~/.bashrc
           cd /home/ubuntu/personal-portfolio-backend-fe78
-          sudo apt install python3.12-venv -y
           python3 -m venv venv
           source venv/bin/activate
           pip install -r requirements.txt
-          sudo nohup python3 -m src > log.txt 2>&1 &
+          nohup python3 -m src > log.txt 2>&1 &
           '
