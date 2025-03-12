@@ -26,7 +26,7 @@ def allowed_file(filename):
 
 def get_profile_img_link(filename):
     if filename:
-        return get_param_value_by_name("WEB_SERVER_NAME") + "/api/v1/portfolio/images/" + filename
+        return get_param_value_by_name("WEB_SERVER_NAME") + "/portfolio/api/v1/portfolio/images/" + filename
         #return url_for("blog_blueprint.get_img_url", _external=True, filename=filename)
 
 @portfolio_blueprint.route('/portfolio/images/<filename>', methods=['GET'])
