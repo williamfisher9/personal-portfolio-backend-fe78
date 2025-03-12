@@ -29,7 +29,7 @@ def get_profile_img_link(filename):
         return get_param_value_by_name("WEB_SERVER_NAME") + "/portfolio/api/v1/portfolio/images/" + filename
         #return url_for("blog_blueprint.get_img_url", _external=True, filename=filename)
 
-@portfolio_blueprint.route('/portfolio/images/<filename>', methods=['GET'])
+@portfolio_blueprint.route('/images/<filename>', methods=['GET'])
 def get_img_url(filename):
    return send_from_directory(get_param_value_by_name("UPLOAD_FOLDER"), filename, as_attachment=False)
 
@@ -73,32 +73,6 @@ def create_portfolio_item():
         response_message = ResponseMessage("portfolio item created successfully", 201)
         return response_message.create_response_message()
 
-@portfolio_blueprint.route("/items/upload", methods=['POST'])
-@jwt_required()
-def upload_image():
-    if request.method == 'POST':
-        # check if the post request has the file part
-        if 'file' not in request.files:
-            response_message = ResponseMessage("File was not found in the request", 400)
-            return response_message.create_response_message()
-
-        file = request.files['file']
-        # If the user does not select a file, the browser submits an
-        # empty file without a filename.
-        if file.filename == '':
-            response_message = ResponseMessage("Improper file name", 400)
-            return response_message.create_response_message()
-
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(get_param_value_by_name("UPLOAD_FOLDER"), filename))
-
-            image = StoredImages(filename, get_param_value_by_name("UPLOAD_FOLDER") + "//" + filename)
-            db.session.add(image)
-            db.session.commit()
-
-            response_message = ResponseMessage("File uploaded successfully", 200)
-            return response_message.create_response_message()
 
 @portfolio_blueprint.route("/items/<id>", methods=['GET'])
 def get_portfolio_item_by_id(id):
