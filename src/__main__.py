@@ -14,6 +14,9 @@ from src.routes.blog_routes import blog_blueprint
 from src.routes.mail_routes import mail_blueprint
 
 import logging
+
+from src.routes.portfolio_routes import portfolio_blueprint
+
 if __name__ == '__main__':
     initialize_app()
 
@@ -36,6 +39,7 @@ if __name__ == '__main__':
     app.register_blueprint(users_blueprint)
     app.register_blueprint(blog_blueprint)
     app.register_blueprint(mail_blueprint)
+    app.register_blueprint(portfolio_blueprint)
 
     with app.app_context():
         logging.info("initializing database instance")

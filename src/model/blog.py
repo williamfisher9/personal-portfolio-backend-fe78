@@ -1,3 +1,5 @@
+import datetime
+
 from src.extensions.extensions import db
 
 class Blog(db.Model):
@@ -12,6 +14,8 @@ class Blog(db.Model):
     description = db.Column(db.Text(), nullable=False)
     post_contents = db.Column(db.Text(), nullable=False)
     main_image_source = db.Column(db.Text(), nullable=False)
+    blog_creation_date = db.Column(db.DateTime, default=datetime.datetime.now())
+    blog_update_date = db.Column(db.DateTime, default=datetime.datetime.now())
 
     def to_dict(self):
         return {
@@ -19,7 +23,9 @@ class Blog(db.Model):
             "title": self.title,
             "description": self.description,
             "post_contents": self.post_contents,
-            "main_image_source": self.main_image_source
+            "main_image_source": self.main_image_source,
+            "blog_creation_date": self.blog_creation_date,
+            "blog_update_date": self.blog_update_date
         }
 
     def __repr__(self):

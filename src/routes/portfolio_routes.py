@@ -1,19 +1,17 @@
-import datetime
-
 from flask import Blueprint, request, send_from_directory
 from flask_jwt_extended import jwt_required
 from werkzeug.utils import secure_filename
 
 from src.messages.response_message import ResponseMessage
-from src.model.blog import Blog
 from src.extensions.extensions import db
 import os
 import json
 import logging
 
+from src.model.portfolio import Portfolio
 from src.model.stored_images import StoredImages
 
-blog_blueprint = Blueprint("blog_blueprint", __name__, url_prefix="/api/v1/blog")
+portfolio_blueprint = Blueprint("portfolio_blueprint", __name__, url_prefix="/api/v1/portfolio")
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
@@ -28,38 +26,28 @@ def allowed_file(filename):
 
 def get_profile_img_link(filename):
     if filename:
-        return get_param_value_by_name("WEB_SERVER_NAME") + "/api/v1/blog/posts/images/" + filename
+        return get_param_value_by_name("WEB_SERVER_NAME") + "/api/v1/portfolio/images/" + filename
         #return url_for("blog_blueprint.get_img_url", _external=True, filename=filename)
 
-@blog_blueprint.route('/posts/images/<filename>', methods=['GET'])
+@portfolio_blueprint.route('/portfolio/images/<filename>', methods=['GET'])
 def get_img_url(filename):
    return send_from_directory(get_param_value_by_name("UPLOAD_FOLDER"), filename, as_attachment=False)
 
 
-@blog_blueprint.route("/posts", methods=['GET'])
-def get_all_posts():
+@portfolio_blueprint.route("/items", methods=['GET'])
+def get_all_portfolio_items():
     logger.info(request.remote_addr)
-    blogs = Blog.query.all()
+    portfolio_items = Portfolio.query.all()
 
-    for blog in blogs:
-        blog.main_image_source = get_profile_img_link(blog.main_image_source)
+    for item in portfolio_items:
+        item.main_image_source = get_profile_img_link(item.main_image_source)
 
-    response_message = ResponseMessage([blog.to_dict() for blog in blogs], 200)
+    response_message = ResponseMessage([item.to_dict() for item in portfolio_items], 200)
     return response_message.create_response_message()
 
-@blog_blueprint.route("/posts/search/<search_title>", methods=['GET'])
-def search_posts_by_title(search_title):
-    if search_title == "-":
-        blogs = Blog.query.all()
-    else:
-        search = "%{}%".format(search_title)
-        blogs = Blog.query.filter(Blog.title.like(search)).all()
-    response_message = ResponseMessage([blog.to_dict() for blog in blogs], 200)
-    return response_message.create_response_message()
-
-@blog_blueprint.route("/posts/new", methods=['POST'])
+@portfolio_blueprint.route("/items/new", methods=['POST'])
 @jwt_required()
-def create_post():
+def create_portfolio_item():
     if 'file' not in request.files:
         response_message = ResponseMessage("File was not found in the request", 400)
         return response_message.create_response_message()
@@ -75,17 +63,17 @@ def create_post():
         filename = secure_filename(file.filename)
         file.save(os.path.join(get_param_value_by_name("UPLOAD_FOLDER"), filename))
 
-        blog = Blog(request.form['title'],
+        portfolio_item = Portfolio(request.form['title'],
                     request.form['description'],
-                    request.form['post_contents'],
+                    request.form['link'],
                     filename)
-        db.session.add_all([blog])
+        db.session.add(portfolio_item)
         db.session.commit()
 
-        response_message = ResponseMessage("post created successfully", 201)
+        response_message = ResponseMessage("portfolio item created successfully", 201)
         return response_message.create_response_message()
 
-@blog_blueprint.route("/posts/upload", methods=['POST'])
+@portfolio_blueprint.route("/items/upload", methods=['POST'])
 @jwt_required()
 def upload_image():
     if request.method == 'POST':
@@ -112,81 +100,48 @@ def upload_image():
             response_message = ResponseMessage("File uploaded successfully", 200)
             return response_message.create_response_message()
 
-@blog_blueprint.route("/posts/images", methods=['GET'])
-@jwt_required()
-def get_all_images():
-    images = StoredImages.query.all()
-
-    for image in images:
-        image.source = get_profile_img_link(image.name)
-
-    response_message = ResponseMessage([image.to_dict() for image in images], 200)
-    return response_message.create_response_message()
-
-@blog_blueprint.route("/posts/images/<id>", methods=['DELETE'])
-@jwt_required()
-def delete_image_by_id(id):
-    image = StoredImages.query.filter_by(id=id).first()
-    if not image:
-        response_message = ResponseMessage("Image was not found", 404)
+@portfolio_blueprint.route("/items/<id>", methods=['GET'])
+def get_portfolio_item_by_id(id):
+    portfolio_item = Portfolio.query.filter_by(id=id).first()
+    if not portfolio_item:
+        response_message = ResponseMessage("Portfolio item was not found", 404)
         return response_message.create_response_message()
     else:
-        db.session.delete(image)
+        portfolio_item.main_image_source = get_profile_img_link(portfolio_item.main_image_source)
+        response_message = ResponseMessage(portfolio_item.to_dict(), 200)
+        return response_message.create_response_message()
+
+@portfolio_blueprint.route("/items/<id>", methods=['DELETE'])
+@jwt_required()
+def delete_portfolio_item_by_id(id):
+    portfolio_item = Portfolio.query.filter_by(id=id).first()
+    if not portfolio_item:
+        response_message = ResponseMessage("Portfolio item was not found", 404)
+        return response_message.create_response_message()
+    else:
+        db.session.delete(portfolio_item)
         db.session.commit()
 
-        response_message = ResponseMessage("deleted successfully", 200)
+        response_message = ResponseMessage("Portfolio item deleted successfully", 200)
         return response_message.create_response_message()
 
-@blog_blueprint.route("/posts/<id>", methods=['GET'])
-def get_post_by_id(id):
-    post = Blog.query.filter_by(id=id).first()
-    if not post:
-        response_message = ResponseMessage("Post was not found", 404)
-        return response_message.create_response_message()
-    else:
-        post.main_image_source = get_profile_img_link(post.main_image_source)
-        response_message = ResponseMessage(post.to_dict(), 200)
-        return response_message.create_response_message()
-
-@blog_blueprint.route("/posts/<id>", methods=['DELETE'])
+@portfolio_blueprint.route("/items/update/<id>", methods=['PUT'])
 @jwt_required()
-def delete_post_by_id(id):
-    blog = Blog.query.filter_by(id=id).first()
-    if not blog:
-        response_message = ResponseMessage("Blog was not found", 404)
-        return response_message.create_response_message()
-    else:
-        db.session.delete(blog)
-        db.session.commit()
+def update_portfolio_item(id):
+    fetched_portfolio_item = Portfolio.query.filter_by(id=id).first()
 
-        response_message = ResponseMessage("deleted successfully", 200)
-        return response_message.create_response_message()
-
-
-
-
-
-
-
-
-@blog_blueprint.route("/posts/update/<id>", methods=['PUT'])
-@jwt_required()
-def update_post(id):
-    fetched_blog = Blog.query.filter_by(id=id).first()
-
-    if not fetched_blog:
-        response_message = ResponseMessage("Blog was not found", 404)
+    if not fetched_portfolio_item:
+        response_message = ResponseMessage("Portfolio item was not found", 404)
         return response_message.create_response_message()
 
     if 'file' not in request.files:
-        fetched_blog.title = request.form['title']
-        fetched_blog.description = request.form['description']
-        fetched_blog.post_contents = request.form['post_contents']
-        fetched_blog.blog_update_date = datetime.datetime.now()
-        db.session.add(fetched_blog)
+        fetched_portfolio_item.title = request.form['title']
+        fetched_portfolio_item.description = request.form['description']
+        fetched_portfolio_item.link = request.form['link']
+        db.session.add(fetched_portfolio_item)
         db.session.commit()
 
-        response_message = ResponseMessage("post updated successfully", 201)
+        response_message = ResponseMessage("Portfolio item updated successfully", 201)
         return response_message.create_response_message()
 
 
@@ -201,14 +156,13 @@ def update_post(id):
         filename = secure_filename(file.filename)
         file.save(os.path.join(get_param_value_by_name("UPLOAD_FOLDER"), filename))
 
-        fetched_blog.title = request.form['title']
-        fetched_blog.description = request.form['description']
-        fetched_blog.post_contents = request.form['post_contents']
-        fetched_blog.main_image_source = filename
-        fetched_blog.blog_update_date = datetime.datetime.now()
+        fetched_portfolio_item.title = request.form['title']
+        fetched_portfolio_item.description = request.form['description']
+        fetched_portfolio_item.link = request.form['link']
+        fetched_portfolio_item.main_image_source = filename
         
-        db.session.add(fetched_blog)
+        db.session.add(fetched_portfolio_item)
         db.session.commit()
 
-        response_message = ResponseMessage("post updated successfully", 201)
+        response_message = ResponseMessage("Portfolio item updated successfully", 201)
         return response_message.create_response_message()

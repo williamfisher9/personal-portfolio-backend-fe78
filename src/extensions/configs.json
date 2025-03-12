@@ -9,8 +9,8 @@
   "MAIL_PORT": 465,
   "MAIL_USE_TLS": false,
   "MAIL_USE_SSL": true,
-  "WEB_SERVER_NAME": "http://ec2-3-147-126-128.us-east-2.compute.amazonaws.com",
-  "SQLALCHEMY_DATABASE_URI": "sqlite:////home/ubuntu/app_files/app.db",
+  "WEB_SERVER_NAME": "https://willtechbooth.dev",
+  "SQLALCHEMY_DATABASE_URI": "sqlite:////home/ubuntu/app_files/app_db_1.db",
   "UPLOAD_FOLDER": "/home/ubuntu/app_files/images",
-  "LOGS_DIRECTORY": "/home/ubuntu/app_files"
+  "LOGS_DIRECTORY": "/home/ubuntu/app_files/"
 }
