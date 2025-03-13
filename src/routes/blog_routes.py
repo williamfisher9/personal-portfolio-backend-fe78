@@ -78,7 +78,8 @@ def create_post():
         blog = Blog(request.form['title'],
                     request.form['description'],
                     request.form['post_contents'],
-                    filename)
+                    filename,
+                    request.form['project_id'])
         db.session.add_all([blog])
         db.session.commit()
 

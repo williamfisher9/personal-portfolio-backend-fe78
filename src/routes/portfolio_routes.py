@@ -8,6 +8,7 @@ import os
 import json
 import logging
 
+from src.model.blog import Blog
 from src.model.portfolio import Portfolio
 from src.model.stored_images import StoredImages
 
@@ -43,6 +44,17 @@ def get_all_portfolio_items():
         item.main_image_source = get_profile_img_link(item.main_image_source)
 
     response_message = ResponseMessage([item.to_dict() for item in portfolio_items], 200)
+    return response_message.create_response_message()
+
+@portfolio_blueprint.route("/items/get-posts/<id>", methods=['GET'])
+def get_project_posts(id):
+    logger.info(request.remote_addr)
+    blogs = Blog.query.filter_by(project_id=id).all()
+
+    for blog in blogs:
+        blog.main_image_source = get_profile_img_link(blog.main_image_source)
+
+    response_message = ResponseMessage([blog.to_dict() for blog in blogs], 200)
     return response_message.create_response_message()
 
 @portfolio_blueprint.route("/items/new", methods=['POST'])

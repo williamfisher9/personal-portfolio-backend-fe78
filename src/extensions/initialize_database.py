@@ -12,14 +12,3 @@ def initialize_database():
         db.session.add_all([role1, role2])
         db.session.commit()
 
-    users = User.query.all()
-    if not users:
-        user = User("Hamza", "Hamdan",
-                    "hamza.hamdan@hotmail.com", bcrypt.generate_password_hash("12345678"))
-
-        role = Role.query.filter_by(name="ROLE_ADMIN").first()
-        user.roles.append(role)
-
-        db.session.add(user)
-        db.session.commit()
-
