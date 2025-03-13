@@ -10,7 +10,7 @@
   "MAIL_USE_TLS": false,
   "MAIL_USE_SSL": true,
   "WEB_SERVER_NAME": "https://willtechbooth.dev",
-  "SQLALCHEMY_DATABASE_URI": "sqlite:////home/ubuntu/app_files/app_db_1.db",
+  "SQLALCHEMY_DATABASE_URI": "sqlite:////home/ubuntu/app_files/app_db_main.db",
   "UPLOAD_FOLDER": "/home/ubuntu/app_files/images",
   "LOGS_DIRECTORY": "/home/ubuntu/app_files/"
 }
