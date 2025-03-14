@@ -25,7 +25,7 @@ jobs:
           echo "Listing home directory:"
           ls -la ~
           source ~/.profile
-          pkill -f /home/ubuntu/actions-runner-portfolio/_work/personal-portfolio-frontend-fe78/personal-portfolio-frontend-fe78/venv/bin/python3
+          #pkill -f /home/ubuntu/actions-runner-portfolio/_work/personal-portfolio-frontend-fe78/personal-portfolio-frontend-fe78/venv/bin/python3
           cd /home/ubuntu/actions-runner-portfolio/_work/personal-portfolio-frontend-fe78/personal-portfolio-frontend-fe78
           python3 -m venv venv
           source venv/bin/activate
