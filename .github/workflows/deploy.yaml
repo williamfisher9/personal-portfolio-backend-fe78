@@ -5,32 +5,55 @@ on:
     branches: [ master ]
 
 jobs:
-  backend:
-    runs-on: ubuntu-latest
-    name: deploying backend
-
-    steps:
-      - name: Checkout the files to github runner
-        uses: actions/checkout@v4
-
-      - name: Deploy backend
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
-          REMOTE_HOST: ${{ secrets.EC2_IP_ADDRESS }}
-          REMOTE_USER: ${{ secrets.EC2_USERNAME }}
-        run: | 
-          echo "$SSH_PRIVATE_KEY" > private_key_ec2.pem && chmod 600 private_key_ec2.pem
-          ssh -o StrictHostKeyChecking=no -i private_key_ec2.pem ${REMOTE_USER}@${REMOTE_HOST} '
-          echo "Current directory: $(pwd)"
-          echo "Listing home directory:"
-          ls -la ~
-          source ~/.profile
-          cd /home/ubuntu/actions-runner-portfolio/_work
-          git clone git@github.com:williamfisher9/personal-portfolio-backend-fe78.git
-          #pkill -f /home/ubuntu/actions-runner-portfolio/_work/personal-portfolio-frontend-fe78/personal-portfolio-frontend-fe78/venv/bin/python3
-          cd /home/ubuntu/actions-runner-portfolio/_work/personal-portfolio-backend-fe78
-          python3 -m venv venv
-          source venv/bin/activate
-          pip install -r requirements.txt
-          nohup python3 -m src > log.txt 2>&1 &
-          '
+  deploy:
+     runs-on: ubuntu-latest
+     name: deployment on EC2 instance
+ 
+     steps:
+       - name: Checkout the files to github runner
+         uses: actions/checkout@v2
+ 
+       - name: Prepare instance
+         env:
+           SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
+           REMOTE_HOST: ${{ secrets.EC2_IP_ADDRESS }}
+           REMOTE_USER: ${{ secrets.EC2_USERNAME }}
+         run: | 
+           echo "$SSH_PRIVATE_KEY" > private_key_ec2.pem && chmod 600 private_key_ec2.pem
+           ssh -o StrictHostKeyChecking=no -i private_key_ec2.pem ${REMOTE_USER}@${REMOTE_HOST} '
+           echo "Current directory: $(pwd)"
+           echo "Listing home directory:"
+           ls -la ~
+           cd /home/ubuntu && sudo rm -rf personal-portfolio-backend-fe78 && 
+           mkdir personal-portfolio-backend-fe78 &&
+           mkdir -p app_files/images
+           '
+ 
+       - name: Clone repo to EC2 using rsync
+         uses: easingthemes/ssh-deploy@v2.1.5
+         env:
+           SOURCE: "./"
+           SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
+           REMOTE_HOST: ${{ secrets.EC2_IP_ADDRESS }}
+           REMOTE_USER: ${{ secrets.EC2_USERNAME }}
+           TARGET: "/home/ubuntu/personal-portfolio-backend-fe78"
+ 
+       - name: Deploy them
+         env:
+           SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
+           REMOTE_HOST: ${{ secrets.EC2_IP_ADDRESS }}
+           REMOTE_USER: ${{ secrets.EC2_USERNAME }}
+         run: | 
+           echo "$SSH_PRIVATE_KEY" > private_key_ec2.pem && chmod 600 private_key_ec2.pem
+           ssh -o StrictHostKeyChecking=no -i private_key_ec2.pem ${REMOTE_USER}@${REMOTE_HOST} '
+           echo "Current directory: $(pwd)"
+           echo "Listing home directory:"
+           ls -la ~
+           source ~/.profile
+           pgrep -f personal-portfolio-backend-fe78 | xargs kill
+           cd /home/ubuntu/personal-portfolio-backend-fe78
+           python3 -m venv venv
+           source venv/bin/activate
+           pip install -r requirements.txt
+           nohup python3 -m src > log.txt 2>&1 &
+           '
