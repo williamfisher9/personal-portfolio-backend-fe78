@@ -50,7 +50,7 @@ jobs:
            echo "Listing home directory:"
            ls -la ~
            source ~/.profile
-           pgrep -f personal-portfolio-backend-fe78 | xargs kill
+           $env:RUNNER_TRACKING_ID="" && pgrep -f personal-portfolio-backend-fe78 | xargs kill
            cd /home/ubuntu/personal-portfolio-backend-fe78
            python3 -m venv venv
            source venv/bin/activate
